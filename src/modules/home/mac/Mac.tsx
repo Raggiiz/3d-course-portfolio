@@ -10,6 +10,8 @@ Title: Apple-macbook-pro-a1708™️
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
+import { useEffect, useRef, useState } from 'react'
+import { useFrame } from '@react-three/fiber';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -27,8 +29,51 @@ type GLTFResult = GLTF & {
 
 export default function Model(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('/models/mac-transformed.glb') as GLTFResult
+
+  const [currentRotation, setCurrentRotation] = useState(new THREE.Vector3(0, -0.05, -0.01));
+  const [targetRotation, setTargetRotation] = useState(new THREE.Vector3(0, 0.3, 0));
+  const clockRef = useRef(new THREE.Clock());
+
+  const [currentScale, setCurrentScale] = useState(1);
+  const [targetScale, setTargetScale] = useState(0.7);
+
+  function handleScroll() {
+    const scrollY = window.scrollY;
+    if (scrollY >= 500) {
+      setTargetScale(0.7);
+      setTargetRotation(new THREE.Vector3(0, 0.3, 0));
+    } else{
+      setTargetScale(1);
+      setTargetRotation(new THREE.Vector3(0, -0.05, -0.01));
+    }
+  }
+
+  useEffect(() => {
+    clockRef.current.start();
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // useFrame é uma função do Three.js que é chamada em cada quadro (frame) da animação
+  useFrame(() => {
+    if (clockRef.current.running) {
+      const delta = clockRef.current.getDelta() // delta é o tempo decorrido entre quadros da animação
+      const ratio = Math.min(delta * 4, 1); // é um valor entre 0 e 1 que controla a progressão da interpolação linear (tempo da animação)
+
+      const rotationVectorLerp = currentRotation.clone().lerp(targetRotation, ratio); // lerp calcula um valor intermediario entre o curr e target suavizando o movimento
+      setCurrentRotation(rotationVectorLerp);
+
+      const targetScaleVector = new THREE.Vector3(targetScale, targetScale, targetScale);
+      const currentScaleVector = new THREE.Vector3(currentScale, currentScale, currentScale);
+      const scaleVectorLerp = currentScaleVector.lerp(targetScaleVector, ratio);
+      setCurrentScale(scaleVectorLerp.x);
+    }
+  });
+
+
   return (
-    <group {...props} dispose={null}>
+    <group {...props} rotation={currentRotation.toArray()} scale={currentScale}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
         <group rotation={[Math.PI / 2, 0, 0]}>
           <mesh geometry={nodes.defaultMaterial.geometry} material={materials.apple_a1708_macbook_pro_13_mpxq2ua_space_gray_decol_mat} />
