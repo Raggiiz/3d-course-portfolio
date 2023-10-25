@@ -1,4 +1,3 @@
-import { Canvas } from "@react-three/fiber"
 import { Scene } from "./mac/Scene"
 
 export const Home = () => {
@@ -8,9 +7,7 @@ export const Home = () => {
             <h1 className="font-space font-bold text-[7.5rem] self-center mt-[35vh] text-white">HELLO <span className="text-teal-600">3D</span> WORLD</h1>
             <div className="absolute h-[130vh] right-0 left-0 m-auto top-[10%] pointer-events-none">
                 <div className="sticky right-0 left-0 m-auto top-[50vh] h-[60vh]">
-                    <Canvas resize={{ scroll: false }}>
-                        <Scene />
-                    </Canvas>
+                    <Scene />
                 </div>
             </div>
         </div>

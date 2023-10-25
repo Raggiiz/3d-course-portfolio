@@ -55,7 +55,7 @@ export default function Model(props: JSX.IntrinsicElements['group']) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // useFrame é uma função do Three.js que é chamada em cada quadro (frame) da animação
+  // useFrame é uma função do Three.js Fiber que é chamada em cada quadro (frame) da animação
   useFrame(() => {
     if (clockRef.current.running) {
       const delta = clockRef.current.getDelta() // delta é o tempo decorrido entre quadros da animação
